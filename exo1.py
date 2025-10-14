@@ -1,3 +1,4 @@
+import math 
 def parcours_largeur(A, start):
     n = len(A)
     pere = {i: None for i in range(n)}
@@ -76,3 +77,22 @@ if __name__ == "__main__":
 
     print("\n=== Parcours en profondeur (DFS) ===")
     affichage_chemin(pere_dfs, villes, start)
+
+
+    def bellman( A,villes , source_e ):
+      n=len(A)
+      source = villes.index(source_e)
+      dist = [math.inf]*n
+      pere = []*n
+      dist[source]=0    # la distance d'une ville a elle meme est 0
+
+      for _ in range(n-1):     # on parcours n-1 fois pour eviter de creer un cycle 
+            for a in range(n):
+                  for b in range(n):
+                        if (A[a][b] != -1) :
+                              if (dist[a] +A[a][b] < dist[b]) :      # on regarde si le chemin de a à b etait deja le plus court ou pas
+                                    dist[b] = dist[a]+ A[a][b]       # on met a jour le nouveau poids de la nouvelle aretes si un chemin plus cours est trouver 
+                                    pere[b]= a 
+
+      if A[a][b] != -1 and dist[a] + A[a][b] < dist[b]:
+            print ("il y a un cycle de poids négatif")
