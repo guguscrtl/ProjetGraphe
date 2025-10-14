@@ -3,16 +3,16 @@ def parcours_largeur(A, start):
     pere = {i: None for i in range(n)}
     visite = [False] * n
 
-    file = [start]
+    voisin = [start]
     visite[start] = True
 
-    while file:
-        u = file.pop(0)  # on enlève le premier élément (file FIFO)
+    while voisin:
+        u = voisin.pop(0)  # on enlève le premier élément (file FIFO)
         for v in range(n):
             if A[u][v] != -1 and not visite[v]:
                 visite[v] = True
                 pere[v] = u
-                file.append(v)
+                voisin.append(v)
     return pere
 
 
