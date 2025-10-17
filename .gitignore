@@ -1,4 +1,8 @@
-# Node modules
+# ==========================
+# === NODE / FRONTEND ===
+# ==========================
+
+# Node modules & package managers
 node_modules/
 .npm/
 .pnpm/
@@ -6,11 +10,20 @@ node_modules/
 .yarn-cache/
 .yarn-integrity
 
-# Build output
+# Build outputs
 dist/
 build/
 out/
 coverage/
+
+# Vite / Webpack / Next / etc.
+.cache/
+.next/
+.vite/
+*.vite/
+vite.config.ts.timestamp-*
+webpack.cache/
+.eslintcache
 
 # Logs
 logs/
@@ -18,6 +31,7 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Environment files
 .env
@@ -27,42 +41,110 @@ yarn-error.log*
 .env.production.local
 venv
 # OS files
-.DS_Store
-Thumbs.db
 
-# IDE / Editor settings
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Temporary files
+# Temporary / backup files
 tmp/
 temp/
 *.tmp
 *.bak
 
-# TypeScript
-*.tsbuildinfo
+# ==========================
+# === PYTHON / BACKEND ===
+# ==========================
 
-# Cache
-.cache/
-.next/
-vite.config.ts.timestamp-*
-*.vite/
-.vite/
-webpack.cache/
-.eslintcache
+# Environnements virtuels
+venv/
+env/
+ENV/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.pkl
+*.egg
+*.egg-info/
+*.manifest
+*.spec
 
-# Test files
+# Python build / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+cover/
+coverage.xml
+nosetests.xml
+test-results.xml
+
+# Jupyter
+.ipynb_checkpoints
+
+# ==========================
+# === OS / EDITORS ===
+# ==========================
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ==========================
+# === TESTS / CONFIGS ===
+# ==========================
+
+# Jest / Test files
 jest-cache/
 jest-test-results.json
 coverage/
-__pycache__/
+__tests__/
 *.spec.js
 *.test.js
 *.spec.ts
 *.test.ts
+*.spec.py
+*.test.py
 
-# Optional: ignore local configs
+# Local / sensitive configs
 config.local.json
+secret_config.json
+package.json
+
+# ==========================
+# === MISCELLANEOUS ===
+# ==========================
+
+# TypeScript
+*.tsbuildinfo
+
+# Lock files (optionnel si tu veux les garder centralisés)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
