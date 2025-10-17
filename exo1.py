@@ -49,6 +49,15 @@ def bellman(villes , source_e ):
     return pere
 
 
+def Warshall(A_oriente):
+     W = A_oriente
+     n=len(W)
+     for _ in range(1,n):
+          for i in range(1,n):
+               for j in range(1,n):
+               
+
+
 def shortest_path(algo, start):
     if algo == "BFS":
         return parcours_largeur(start)
@@ -121,6 +130,5 @@ if __name__ == "__main__":
 
     print("\n=== Parcours en profondeur (DFS) ===")
     affichage_chemin(pere_dfs, villes, start)
-
 
     print(bellman(villes,"Paris"))
