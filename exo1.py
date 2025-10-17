@@ -50,6 +50,27 @@ def affichage_chemin(pere, villes, start):
             print(f"{villes[i]} : inaccessible depuis {villes[start]}")
 
 
+def bellman( A,villes , source_e ):
+    n=len(A)
+    source = villes.index(source_e)
+    dist = [math.inf]*n
+    pere = [False]*n
+    dist[source]=0    # la distance d'une ville a elle meme est 0
+
+    for _ in range(n-1):     # on parcours n-1 fois pour eviter de creer un cycle 
+            for a in range(n):
+                  for b in range(n):
+                        if (A[a][b] != -1) :
+                              if (dist[a] +A[a][b] < dist[b]) :      # on regarde si le chemin de a à b etait deja le plus court ou pas
+                                    dist[b] = dist[a]+ A[a][b]       # on met a jour le nouveau poids de la nouvelle aretes si un chemin plus cours est trouver 
+                                    pere[b]= a 
+                                
+
+    if A[a][b] != -1 and dist[a] + A[a][b] < dist[b]:
+            print ("il y a un cycle de poids négatif")
+    return pere
+
+
 if __name__ == "__main__":
     #Liste des villes
     villes = ["Paris", "Lille", "Nancy", "Grenoble", "Lyon", "Dijon", "Caen", "Rennes", "Nantes", "Bordeaux"]
@@ -67,6 +88,23 @@ if __name__ == "__main__":
         [150, -1, -1, -1, 100, -1, -1, 130, 90, -1]
     ]
 
+    A_oriente =  [
+        [-1, 70, -1, -1, -1, 60, 50, 110, 80, 150],      
+        [-1, -1, 100, -1, -1, 120, 65, -1, -1, -1],
+        [-1, -1, -1, 80, 90, 75, -1, -1, -1, -1],
+        [-1, -1, -1, -1, 40, 75, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, 70, -1, -1, -1, 100],
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1, 75, -1, -1],
+        [-1, -1, -1, -1, -1, -1, -1, -1, 45, 130],
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, 90],
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
+        
+
+
+
+
+
     start = 0  # Paris
 
     pere_bfs = parcours_largeur(A, start)
@@ -79,20 +117,5 @@ if __name__ == "__main__":
     affichage_chemin(pere_dfs, villes, start)
 
 
-    def bellman( A,villes , source_e ):
-      n=len(A)
-      source = villes.index(source_e)
-      dist = [math.inf]*n
-      pere = []*n
-      dist[source]=0    # la distance d'une ville a elle meme est 0
 
-      for _ in range(n-1):     # on parcours n-1 fois pour eviter de creer un cycle 
-            for a in range(n):
-                  for b in range(n):
-                        if (A[a][b] != -1) :
-                              if (dist[a] +A[a][b] < dist[b]) :      # on regarde si le chemin de a à b etait deja le plus court ou pas
-                                    dist[b] = dist[a]+ A[a][b]       # on met a jour le nouveau poids de la nouvelle aretes si un chemin plus cours est trouver 
-                                    pere[b]= a 
-
-      if A[a][b] != -1 and dist[a] + A[a][b] < dist[b]:
-            print ("il y a un cycle de poids négatif")
+    print(bellman(A_oriente, villes,"Paris"))
