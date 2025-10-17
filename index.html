@@ -4,18 +4,41 @@
   <title>Carte des villes - Vis.js</title>
   <script type="text/javascript" src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
   <style>
-    #network {
+    #network, #network-oriented {
       width: 100%;
-      height: 600px;
+      height: 400px;
       border: 1px solid lightgray;
     }
   </style>
 </head>
 <body>
   <h2>Réseau des villes</h2>
+  <select id="algorithmSelect" onchange="verifyNeededStartPoint()">
+    <option value="BFS">BFS</option>
+    <option value="DFS">DFS</option>
+    <option value="Kruskal">Kruskal</option>
+    <option value="Prim">Prim</option>
+    <option value="Dijkstra">Dijkstra</option>
+    <option value="Floyd-Warshall">Floyd-Warshall</option>
+  </select>
+  <select id="startNodeSelect">
+    <option value="0">Paris</option>
+    <option value="1">Lille</option>
+    <option value="2">Nancy</option>
+    <option value="3">Grenoble</option>
+    <option value="4">Lyon</option>
+    <option value="5">Dijon</option>
+    <option value="6">Caen</option>
+    <option value="7">Rennes</option>
+    <option value="8">Nantes</option>
+    <option value="9">Bordeaux</option>
+  </select>
+  <button id="submit">Lancer l'algo</button>
   <div id="network"></div>
+  <div id="network-oriented"></div>
 
   <script type="text/javascript">
+    
     // --- NŒUDS AVEC POSITION FIXE ---
     const nodes = new vis.DataSet([
         { id: 0, label: "Paris", x: 0, y: 0, fixed: true },
@@ -32,7 +55,7 @@
 
     // --- ARÊTES ---
     const edges = new vis.DataSet([
-      { from: 0, to: 1, label: '70' },
+      { from: 0, to: 1, label: '70', color: 'red' },
       { from: 0, to: 5, label: '60' },
       { from: 0, to: 6, label: '50' },
       { from: 0, to: 7, label: '110' },
@@ -58,10 +81,9 @@
     const data = { nodes, edges };
 
     // --- OPTIONS ---
-    const options = {
+    var options = {
       physics: false,  // désactive la physique (positions fixes)
       edges: {
-        arrows: 'none',
         font: { align: 'middle' },
         color: { color: '#999' }
       },
@@ -74,6 +96,148 @@
     };
 
     new vis.Network(container, data, options);
-  </script>
+
+// --- NŒUDS ---
+const nodes_oriented = new vis.DataSet([
+  { id: 0, label: "Paris", x: 0, y: 0, fixed: true, shape: 'circularImage', image: 'img/tour_eiffel.jpg' },
+  { id: 1, label: "Lille", x: 200, y: -200, fixed: true },
+  { id: 2, label: "Nancy", x: 300, y: -50, fixed: true },
+  { id: 3, label: "Grenoble", x: 250, y: 250, fixed: true },
+  { id: 4, label: "Lyon", x: 150, y: 240, fixed: true },
+  { id: 5, label: "Dijon", x: 100, y: 50, fixed: true },
+  { id: 6, label: "Caen", x: -150, y: -150, fixed: true },
+  { id: 7, label: "Rennes", x: -250, y: -50, fixed: true },
+  { id: 8, label: "Nantes", x: -150, y: 100, fixed: true },
+  { id: 9, label: "Bordeaux", x: -200, y: 250, fixed: true },
+]);
+
+// --- ARÊTES ORIENTÉES ---
+const edges_oriented = new vis.DataSet([
+  { from: 0, to: 1, label: '70', color: { color: '#ccc' }},
+  { from: 0, to: 5, label: '60', color: { color: '#ccc' }},
+  { from: 0, to: 6, label: '50', color: { color: '#ccc' }},
+  { from: 0, to: 7, label: '110', color: { color: '#ccc' }},
+  { from: 0, to: 8, label: '80', color: { color: '#ccc' }},
+  { from: 0, to: 9, label: '150', color: { color: '#ccc' }},
+  { from: 1, to: 2, label: '100', color: { color: '#ccc' }},
+  { from: 1, to: 5, label: '120', color: { color: '#ccc' }},
+  { from: 1, to: 6, label: '65', color: { color: '#ccc' }},
+  { from: 2, to: 3, label: '80', color: { color: '#ccc' }},
+  { from: 2, to: 4, label: '90', color: { color: '#ccc' }},
+  { from: 2, to: 5, label: '75', color: { color: '#ccc' }},
+  { from: 3, to: 4, label: '40', color: { color: '#ccc' }},
+  { from: 3, to: 5, label: '75', color: { color: '#ccc' }},
+  { from: 4, to: 5, label: '70', color: { color: '#ccc' }},
+  { from: 4, to: 9, label: '100', color: { color: '#ccc' }},
+  { from: 6, to: 7, label: '75', color: { color: '#ccc' }},
+  { from: 7, to: 8, label: '45', color: { color: '#ccc' }},
+  { from: 7, to: 9, label: '130', color: { color: '#ccc' }},
+  { from: 8, to: 9, label: '90', color: { color: '#ccc' }},
+]);
+
+// --- OPTIONS ---
+const options_oriented = {
+  physics: false,
+  edges: {
+    arrows: 'to',
+    smooth: false,
+    font: { align: 'middle' },
+    color: { color: '#999' },
+  },
+  nodes: {
+    shape: 'dot',
+    size: 20,
+    font: { size: 18 },
+    color: { background: '#7EC8E3', border: '#036' },
+  },
+};
+
+// --- INITIALISATION ---
+const container_oriented = document.getElementById('network-oriented');
+const data_oriented = { nodes: nodes_oriented, edges: edges_oriented }; // ✅ correction ici
+const network = new vis.Network(container_oriented, data_oriented, options_oriented);
+
+// --- ANIMATION DU FLUX ROUGE ---
+const ctx = network.canvas.frame.canvas.getContext('2d');
+
+// 👉 Liste des arêtes à animer
+const pathEdges = [
+  { from: 1, to: 2 },
+  { from: 2, to: 3 },
+  { from: 3, to: 4 },
+  { from: 4, to: 5 },
+  { from: 5, to: 0 },
+];
+
+function animateFlow() {
+  const positions = network.getPositions();
+  const time = (Date.now() / 10) % 100; // vitesse du flux
+
+  // On efface la couche de dessin au-dessus du graphe
+  network.redraw();
+
+  ctx.save();
+  ctx.lineWidth = 4;
+  ctx.globalAlpha = 1;
+
+  pathEdges.forEach((edge, i) => {
+    const from = positions[edge.from];
+    const to = positions[edge.to];
+    if (!from || !to) return;
+
+    // ✅ Conversion des coordonnées du graphe vers celles du canvas
+    const fromCanvas = network.canvasToDOM({ x: from.x, y: from.y });
+    const toCanvas = network.canvasToDOM({ x: to.x, y: to.y });
+
+    const t = ((time + i * 20) % 100) / 100;
+    const segmentLength = 0.2;
+    const tStart = t;
+    const tEnd = Math.min(t + segmentLength, 1);
+
+    const x1 = fromCanvas.x + (toCanvas.x - fromCanvas.x) * tStart;
+    const y1 = fromCanvas.y + (toCanvas.y - fromCanvas.y) * tStart;
+    const x2 = fromCanvas.x + (toCanvas.x - fromCanvas.x) * tEnd;
+    const y2 = fromCanvas.y + (toCanvas.y - fromCanvas.y) * tEnd;
+
+    ctx.beginPath();
+    ctx.strokeStyle = 'red';
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  });
+
+  async function findShortestPath(start, end, algo) {
+    const response = await fetch('http://127.0.0.1:5000/shortest_path', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({start: start, end: end, algo: algo})
+    });
+
+    const data = await response.json();
+    console.log("Chemin trouvé :", data.path);
+
+    // ici tu peux mettre à jour vis.js avec le chemin
+    highlightPath(data.path);
+}
+
+  ctx.restore();
+  requestAnimationFrame(animateFlow);
+}
+
+function verifyNeededStartPoint() {
+  const algorithm = document.getElementById('algorithmSelect').value;
+  const startNodeSelect = document.getElementById('startNodeSelect');
+  if (algorithm === 'Kruskal' || algorithm === 'Floyd-Warshall') {
+    startNodeSelect.style.display = 'none';
+  } else {
+    startNodeSelect.style.display = 'inline';
+  }
+}
+
+animateFlow();
+
+
+</script>
+
 </body>
 </html>
