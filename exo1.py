@@ -30,9 +30,38 @@ A_oriente =  [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, 90],
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
 
-def bellman(villes , source_e ):
+def shortest_path(algo, start):
+    if algo == "BFS":
+        return parcours_largeur(start)
+    elif algo == "DFS":
+        return parcours_profondeur(start)
+    elif algo == "Bellman":
+        return bellman(villes, villes[start])
+    else:
+        return ValueError("Algorithme non supporté")
+    
+def Prim(start):
+    n=len(A)
+    visite=[False]*n
+    visite[start]=True
+    edges=[]
+    pere=[False]*n
+    for _ in range(n-1):
+        min_edge=(math.inf,-1,-1)  # (poids, u, v)
+        for u in range(n):
+            if visite[u]:
+                for v in range(n):
+                    if not visite[v] and A[u][v]!=-1:
+                        if A[u][v]<min_edge[0]:
+                            min_edge=(A[u][v],u,v)
+                            pere[v]=u
+        edges.append((min_edge[1],min_edge[2],min_edge[0]))
+        visite[min_edge[2]]=True
+    return pere
+
+def bellman(start):
     n=len(A_oriente)
-    source = villes.index(source_e)
+    source = villes.index(start)
     dist = [math.inf]*n
     pere = [False]*n
     dist[source]=0    # la distance d'une ville a elle meme est 0
@@ -48,14 +77,6 @@ def bellman(villes , source_e ):
             print ("il y a un cycle de poids négatif")
     return pere
 
-
-def shortest_path(algo, start):
-    if algo == "BFS":
-        return parcours_largeur(start)
-    elif algo == "DFS":
-        return parcours_profondeur(start)
-    else:
-        return ValueError("Algorithme non supporté")
 
 def parcours_largeur(start):
     n = len(A)
@@ -123,4 +144,5 @@ if __name__ == "__main__":
     affichage_chemin(pere_dfs, villes, start)
 
 
-    print(bellman(villes,"Paris"))
+    print(bellman("Paris"))
+    print(Prim(0))
