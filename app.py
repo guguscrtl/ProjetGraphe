@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from exo1 import parcours_largeur, parcours_profondeur  # ton fichier python avec les algos
 
 app = Flask(__name__)
@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Hello Flask!"
+    return render_template('index.html')
+
 
 @app.route("/shortest_path", methods=["POST"])
 def get_shortest_path():
