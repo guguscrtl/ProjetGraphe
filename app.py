@@ -1,6 +1,6 @@
 # app.py
 from flask import Flask, request, jsonify, render_template
-from exo1 import parcours_largeur, parcours_profondeur  # ton fichier python avec les algos
+from exo1 import parcours_largeur, parcours_profondeur, shortest_path  # ton fichier python avec les algos
 
 app = Flask(__name__)
 
@@ -14,7 +14,7 @@ def home():
 def get_shortest_path():
     data = request.json
     start = data["start"]
-    end = data["end"]
+    #end = data["end"]
     algo = data["algo"]
     
     path = shortest_path(algo, start)  # appelle ton algo de graphe

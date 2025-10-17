@@ -25,7 +25,7 @@ def shortest_path(algo, start):
 
 def parcours_largeur(start):
     n = len(A)
-    pere = {i: None for i in range(n)}
+    pere = [None] * n  # liste avec None par défaut
     visite = [False] * n
 
     voisin = [start]
@@ -41,9 +41,10 @@ def parcours_largeur(start):
     return pere
 
 
+
 def parcours_profondeur(start):
     n = len(A)
-    pere = {i: None for i in range(n)}
+    pere = [None] * n  # Liste au lieu de dictionnaire
     visite = [False] * n
 
     def dfs(u):
@@ -72,7 +73,6 @@ def affichage_chemin(pere, villes, start):
             print(" → ".join(chemin))
         else:
             print(f"{villes[i]} : inaccessible depuis {villes[start]}")
-            
 
 
 if __name__ == "__main__":
@@ -80,6 +80,7 @@ if __name__ == "__main__":
     start = 0  # Paris
 
     pere_bfs = parcours_largeur(start)
+    print(pere_bfs)
     pere_dfs = parcours_profondeur(start)
 
     print("=== Parcours en largeur (BFS) ===")

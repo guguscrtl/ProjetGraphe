@@ -151,23 +151,45 @@ const options_oriented = {
     color: { background: '#7EC8E3', border: '#036' },
   },
 };
+const options_non_oriented = {
+  physics: false,
+  edges: {
+    smooth: false,
+    font: { align: 'middle' },
+    color: { color: '#999' },
+  },
+  nodes: {
+    shape: 'dot',
+    size: 20,
+    font: { size: 18 },
+    color: { background: '#7EC8E3', border: '#036' },
+  },
+};
+
 
 // --- INITIALISATION ---
 const container_oriented = document.getElementById('network-oriented');
-const data_oriented = { nodes: nodes_oriented, edges: edges_oriented }; // ✅ correction ici
-const network = new vis.Network(container_oriented, data_oriented, options_oriented);
+const container_non_oriented = document.getElementById('network');
+const data_oriented = { nodes: nodes_oriented, edges: edges_oriented }; 
+const network = new vis.Network(container_non_oriented, data, options);
 
 // --- ANIMATION DU FLUX ROUGE ---
 const ctx = network.canvas.frame.canvas.getContext('2d');
 
+
 // 👉 Liste des arêtes à animer
-const pathEdges = [
-  { from: 1, to: 2 },
-  { from: 2, to: 3 },
-  { from: 3, to: 4 },
-  { from: 4, to: 5 },
-  { from: 5, to: 0 },
-];
+let pathEdges = [];
+
+function buildPathEdges(path) {
+  const edges = [];
+  for (let i = 0; i < path.length; i++) {
+    if (path[i] !== null && path[i] !== i) {
+      edges.push({ from: i, to: path[i] });
+    }
+  }
+  return edges;
+}
+
 
 function animateFlow() {
   const positions = network.getPositions();
@@ -206,23 +228,33 @@ function animateFlow() {
     ctx.stroke();
   });
 
-  async function findShortestPath(start, end, algo) {
-    const response = await fetch('http://127.0.0.1:5000/shortest_path', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({start: start, end: end, algo: algo})
-    });
-
-    const data = await response.json();
-    console.log("Chemin trouvé :", data.path);
-
-    // ici tu peux mettre à jour vis.js avec le chemin
-    highlightPath(data.path);
-}
-
   ctx.restore();
   requestAnimationFrame(animateFlow);
 }
+
+async function findShortestPath(start, end, algo) {
+  const response = await fetch('http://127.0.0.1:5000/shortest_path', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({start: start, end: end, algo: algo})
+  });
+
+  const data = await response.json();
+  console.log("Chemin trouvé :", data.path);
+  pathEdges = buildPathEdges(data.path);
+  console.log(pathEdges);
+
+  //highlightPath(data.path);
+}
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('submit').addEventListener('click', () => {
+    const start = parseInt(document.getElementById('startNodeSelect').value);
+    const algo = document.getElementById('algorithmSelect').value;
+    findShortestPath(start, null, algo);
+  });
+
+  verifyNeededStartPoint();
+});
 
 function verifyNeededStartPoint() {
   const algorithm = document.getElementById('algorithmSelect').value;
