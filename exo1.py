@@ -72,6 +72,7 @@ def affichage_chemin(pere, villes, start):
             print(" → ".join(chemin))
         else:
             print(f"{villes[i]} : inaccessible depuis {villes[start]}")
+            
 
 
 if __name__ == "__main__":
