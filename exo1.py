@@ -1,5 +1,8 @@
 
 #Liste des villes
+import math
+
+
 villes = ["Paris", "Lille", "Nancy", "Grenoble", "Lyon", "Dijon", "Caen", "Rennes", "Nantes", "Bordeaux"]
 #Matrice d'adjacence
 A = [
@@ -14,6 +17,37 @@ A = [
     [80, -1, -1, -1, -1, -1, -1, 45, -1, 90],
     [150, -1, -1, -1, 100, -1, -1, 130, 90, -1]
 ]
+
+A_oriente =  [
+    [-1, 70, -1, -1, -1, 60, 50, 110, 80, 150],      
+    [-1, -1, 100, -1, -1, 120, 65, -1, -1, -1],
+    [-1, -1, -1, 80, 90, 75, -1, -1, -1, -1],
+    [-1, -1, -1, -1, 40, 75, -1, -1, -1, -1],
+    [-1, -1, -1, -1, -1, 70, -1, -1, -1, 100],
+    [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+    [-1, -1, -1, -1, -1, -1, -1, 75, -1, -1],
+    [-1, -1, -1, -1, -1, -1, -1, -1, 45, 130],
+    [-1, -1, -1, -1, -1, -1, -1, -1, -1, 90],
+    [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
+
+def bellman(villes , source_e ):
+    n=len(A_oriente)
+    source = villes.index(source_e)
+    dist = [math.inf]*n
+    pere = [False]*n
+    dist[source]=0    # la distance d'une ville a elle meme est 0
+    for _ in range(n-1):     # on parcours n-1 fois pour eviter de creer un cycle 
+            for a in range(n):
+                  for b in range(n):
+                        if (A_oriente[a][b] != -1) :
+                              if (dist[a] +A_oriente[a][b] < dist[b]) :      # on regarde si le chemin de a à b etait deja le plus court ou pas
+                                    dist[b] = dist[a]+ A_oriente[a][b]       # on met a jour le nouveau poids de la nouvelle aretes si un chemin plus cours est trouver 
+                                    pere[b]= a 
+                                
+    if A_oriente[a][b] != -1 and dist[a] + A_oriente[a][b] < dist[b]:
+            print ("il y a un cycle de poids négatif")
+    return pere
+
 
 def shortest_path(algo, start):
     if algo == "BFS":
@@ -87,3 +121,6 @@ if __name__ == "__main__":
 
     print("\n=== Parcours en profondeur (DFS) ===")
     affichage_chemin(pere_dfs, villes, start)
+
+
+    print(bellman(villes,"Paris"))
