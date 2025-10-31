@@ -34,6 +34,7 @@
     <option value="9">Bordeaux</option>
   </select>
   <button id="submit">Lancer l'algo</button>
+  <span id="poidsTotal">Poids: <span id="valPoidsTotal"></span></span>
   <div id="network"></div>
   <div id="network-oriented"></div>
 
@@ -162,11 +163,11 @@ const ctx = network.canvas.frame.canvas.getContext('2d');
 
 // 👉 Liste des arêtes à animer
 const pathEdges = [
+  { from: 0, to: 1 },
   { from: 1, to: 2 },
   { from: 2, to: 3 },
   { from: 3, to: 4 },
-  { from: 4, to: 5 },
-  { from: 5, to: 0 },
+  { from: 4, to: 5 }
 ];
 
 function animateFlow() {
@@ -215,6 +216,7 @@ function animateFlow() {
 
     const data = await response.json();
     console.log("Chemin trouvé :", data.path);
+    calculCoutTotal();
 
     // ici tu peux mettre à jour vis.js avec le chemin
     highlightPath(data.path);
@@ -234,7 +236,27 @@ function verifyNeededStartPoint() {
   }
 }
 
+function calculCoutTotal(){
+  let totalCost = 0;
+  // edges.forEach(edge => {
+  //   if (edge.color === 'red'){
+  //     totalCost += parseInt(edge.label);
+  //   }
+  // });
+  pathEdges.forEach(edge => {
+    if (edge.from!=null && edge.to!=null){
+      for (let e of edges.get()){
+        if (e.from === edge.from && e.to === edge.to){
+          totalCost += parseInt(e.label);
+        }
+      }
+    }
+  })
+  document.getElementById("valPoidsTotal").innerText = totalCost;
+}
+
 animateFlow();
+calculCoutTotal();
 
 
 </script>
