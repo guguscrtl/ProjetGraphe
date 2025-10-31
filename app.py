@@ -1,6 +1,6 @@
 # app.py
-from flask import Flask, request, jsonify, render_template
-from exo1 import parcours_largeur, parcours_profondeur  # ton fichier python avec les algos
+from flask import Flask, request, jsonify
+from exo1 import shortest_path  # ton fichier python avec les algos
 
 app = Flask(__name__)
 
