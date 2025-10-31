@@ -39,6 +39,8 @@ pnpm-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+venv
+# OS files
 
 # Temporary / backup files
 tmp/
