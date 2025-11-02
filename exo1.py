@@ -41,90 +41,6 @@ def shortest_path(algo, start):
     else:
         return ValueError("Algorithme non supporté")
     
-<<<<<<< HEAD
-=======
-def find(parent, i):
-    while parent[i] != i:
-        i = parent[i]
-    return i
-
-def union(parent, x, y):
-    root_x = find(parent, x)
-    root_y = find(parent, y)
-    if root_x != root_y:
-        parent[root_y] = root_x
-        return True
-    return False
-
-
-def kruskal():
-    list_edges = dict()
-    n = len(A)
-    for i in range(n):
-        for j in range(i + 1, n):
-            if A[i][j] != -1:
-                list_edges[(i, j)] = A[i][j]
-
-    # Trier les arêtes par poids croissant
-    sorted_edges = sorted(list_edges.items(), key=lambda x: x[1])
-    print(sorted_edges)
-
-    parent = [i for i in range(n)]  # initialisation des pères
-    T = []  # arbre couvrant minimal
-
-    for (u, v), w in sorted_edges:
-        # Vérifier qu’on ne crée pas de cycle
-        if union(parent, u, v):
-            T.append((u, v, w))
-
-    return T
-
-
-def floyd_one_intermediate(graph):
-    """
-    Version simplifiée de Floyd–Warshall :
-    ne considère qu'un seul sommet intermédiaire maximum entre i et j.
-    (i -> k -> j au plus)
-    
-    :param graph: matrice d'adjacence avec -1 pour les absences d’arêtes
-    :return: matrice des plus courts chemins avec au plus 1 intermédiaire
-    """
-    n = len(graph)
-    dist = [[math.inf] * n for _ in range(n)]
-    next_node = [[None] * n for _ in range(n)]
-
-    # Initialisation
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                dist[i][j] = 0
-            elif graph[i][j] != math.inf:
-                dist[i][j] = graph[i][j]
-                next_node[i][j] = j
-
-    # On teste uniquement les chemins passant par UN sommet intermédiaire
-    for i in range(n):
-        for j in range(n):
-            for k in range(n):
-                if dist[i][k] != math.inf and dist[k][j] != math.inf:
-                    new_dist = dist[i][k] + dist[k][j]
-                    if new_dist < dist[i][j]:
-                        dist[i][j] = new_dist
-                        next_node[i][j] = k  # on garde l’intermédiaire
-
-    return dist, next_node
-
-
-def reconstruct_path_one_intermediate(i, j, next_node):
-    """
-    Reconstruit le chemin le plus court entre i et j
-    pour la version à un seul intermédiaire maximum.
-    """
-    if next_node[i][j] is None:
-        return [i, j]  # soit lien direct, soit inexistant
-    return [i, next_node[i][j], j]
-
->>>>>>> 768a032564bb1febcef0b7d8d30310653d18ea82
 def Prim(start):
     n=len(A)
     visite=[False]*n
@@ -163,7 +79,6 @@ def bellman(start):
     return pere
 
 
-<<<<<<< HEAD
 def Warshall(A_oriente):
     W = copy.deepcopy(A_oriente)
     n = len(W)
@@ -182,7 +97,7 @@ def Warshall(A_oriente):
                     dist = W[i][k] + W[k][j]
                     if W[i][j] == -1 or dist < W[i][j]:
                         W[i][j] = dist
-                        pere[i][j] = pere[k][j]
+                        pere[i][j] = pere[i][k]
 
     return W
 
@@ -239,8 +154,6 @@ def shortest_path(algo, start):
     else:
         return ValueError("Algorithme non supporté")
 
-=======
->>>>>>> 768a032564bb1febcef0b7d8d30310653d18ea82
 def parcours_largeur(start):
     n = len(A) 
     pere = {i: None for i in range(n)}
@@ -309,7 +222,6 @@ if __name__ == "__main__":
 
     print(bellman("Paris"))
     print(Prim(0))
-<<<<<<< HEAD
     print(Warshall(A_oriente))
     debut_nom = "Bordeaux"
     fin_nom = "Caen"
@@ -323,22 +235,3 @@ if __name__ == "__main__":
     print("Chemin:", chemin_noms)
     print("Distance:", dist)
 
-=======
-    print(kruskal())
-
-    matrice_test = [ 
-        [0, 4, math.inf, math.inf, math.inf, 1],
-        [math.inf, 0, math.inf, 5, math.inf, math.inf],
-        [5, math.inf, 0, math.inf, math.inf, 2],
-        [math.inf, math.inf, math.inf, 0, 3, 3],
-        [math.inf, math.inf, 1, -2, 0, 4],
-        [2, 2, math.inf, math.inf, math.inf, 0]
-    ]
-
-    dist, next_node = floyd_one_intermediate(matrice_test)
-    print(dist)
-
-# Exemple : chemin le plus court de 0 à 96
-chemin = reconstruct_path_one_intermediate(0, 5, next_node)
-print("Chemin 0 → 9 :", chemin)
->>>>>>> 768a032564bb1febcef0b7d8d30310653d18ea82
