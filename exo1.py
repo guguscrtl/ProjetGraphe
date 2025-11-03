@@ -3,6 +3,7 @@
 from flask import jsonify
 import copy
 import math
+import copy 
 
 
 villes = ["Paris", "Lille", "Nancy", "Grenoble", "Lyon", "Dijon", "Caen", "Rennes", "Nantes", "Bordeaux"]
@@ -205,6 +206,58 @@ def dijkstra(A, debut):
 
 def parcours_largeur(start):
     n = len(A)
+    visit = [False]*n
+    distance = [math.inf]*n
+    pere = [None]*n
+    distance[debut] = 0
+
+    for _ in range(n):
+        # Chercher le sommet non visité avec la distance minimale
+        o = None
+        distance_mini = math.inf
+        for i in range(n):
+            if not visit[i] and distance[i] < distance_mini:
+                distance_mini = distance[i]
+                o = i
+        if o is None:
+            break
+
+        visit[o] = True
+
+        for v in range(n):
+            if A[o][v] > 0 and not visit[v]:
+                nouv_dist = distance[o] + A[o][v]
+                if nouv_dist < distance[v]:
+                    distance[v] = nouv_dist
+                    pere[v] = o
+
+    # Reconstituer le chemin
+    parcours = []
+    s = fin
+    while s is not None:
+        parcours.insert(0, s)
+        s = pere[s]
+
+    return distance[fin], parcours
+
+
+
+
+
+        
+
+               
+
+def shortest_path(algo, start):
+    if algo == "BFS":
+        return parcours_largeur(start)
+    elif algo == "DFS":
+        return parcours_profondeur(start)
+    else:
+        return ValueError("Algorithme non supporté")
+
+def parcours_largeur(start):
+    n = len(A) 
     pere = {i: None for i in range(n)}
     visite = [False] * n
 
