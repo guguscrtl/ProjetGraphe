@@ -13,16 +13,17 @@
 </head>
 <body>
   <h2>Réseau des villes</h2>
-  <select id="algorithmSelect" onchange="verifyNeededStartPoint()">
+  <select id="algorithmSelect" onchange="verifyNeededStartPoint(); verifyNeededEndPoint(); verifyNeededGraph()">
     <option value="BFS">BFS</option>
     <option value="DFS">DFS</option>
     <option value="Kruskal">Kruskal</option>
     <option value="Prim">Prim</option>
     <option value="Dijkstra">Dijkstra</option>
     <option value="Floyd-Warshall">Floyd-Warshall</option>
+    <option value="Bellman">Bellman-Ford</option>
   </select>
   <select id="startNodeSelect">
-    <option value="0">Paris</option>
+    <option value="0" selected>Paris</option>
     <option value="1">Lille</option>
     <option value="2">Nancy</option>
     <option value="3">Grenoble</option>
@@ -33,9 +34,77 @@
     <option value="8">Nantes</option>
     <option value="9">Bordeaux</option>
   </select>
-  <button id="submit">Lancer l'algo</button>
-  <div id="network"></div>
-  <div id="network-oriented"></div>
+  <select id="endNodeSelect" style="display: none;">
+    <option value="0" selected>Paris</option>
+    <option value="1">Lille</option>
+    <option value="2">Nancy</option>
+    <option value="3">Grenoble</option>
+    <option value="4">Lyon</option>
+    <option value="5">Dijon</option>
+    <option value="6">Caen</option>
+    <option value="7">Rennes</option>
+    <option value="8">Nantes</option>
+    <option value="9">Bordeaux</option>
+  </select>
+  <button onclick="findShortestPath()">Lancer l'algo</button>
+  <span id="poidsTotal">Poids: <span id="valPoidsTotal"></span></span>
+  <div id="network" style="display: block;"></div>
+  <div id="network-oriented" style="display: none;"></div>
+
+  <label id="labelMatriceAvantWarshall" style="display:none;">Matrice des distances avant Floyd-Warshall :</label>
+  <table id="matriceWarshallAvant" style="display: none;">
+    <thead>
+      <td></td>
+      <td>Paris</td>
+      <td>Lille</td>
+      <td>Nancy</td>
+      <td>Grenoble</td>
+      <td>Lyon</td>
+      <td>Dijon</td>
+      <td>Caen</td>
+      <td>Rennes</td>
+      <td>Nantes</td>
+      <td>Bordeaux</td>
+    </thead>
+    <tr><td>Paris</td><td>?</td><td>70</td><td>?</td><td>?</td><td>?</td><td>60</td><td>50</td><td>110</td><td>80</td><td>150</td></tr>
+    <tr><td>Lille</td><td>?</td><td>?</td><td>100</td><td>?</td><td>?</td><td>120</td><td>65</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Nancy</td><td>?</td><td>?</td><td>?</td><td>80</td><td>90</td><td>75</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Grenoble</td><td>?</td><td>?</td><td>?</td><td>?</td><td>40</td><td>75</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Lyon</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>70</td><td>?</td><td>?</td><td>?</td><td>100</td></tr>
+    <tr><td>Dijon</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Caen</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>75</td><td>?</td><td>?</td></tr>
+    <tr><td>Rennes</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>45</td><td>130</td></tr>
+    <tr><td>Nantes</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>90</td></tr>
+    <tr><td>Bordeaux</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+  </table>
+
+  <label id="labelMatriceApresWarshall" style="display:none;">Matrice des distances apres Floyd-Warshall :</label>
+
+   <table id="matriceWarshallApres" style="display: none;">
+    <thead>
+      <td></td>
+      <td>Paris</td>
+      <td>Lille</td>
+      <td>Nancy</td>
+      <td>Grenoble</td>
+      <td>Lyon</td>
+      <td>Dijon</td>
+      <td>Caen</td>
+      <td>Rennes</td>
+      <td>Nantes</td>
+      <td>Bordeaux</td>
+    </thead>
+    <tr><td>Paris</td><td>?</td><td>70</td><td>?</td><td>?</td><td>?</td><td>60</td><td>50</td><td>110</td><td>80</td><td>150</td></tr>
+    <tr><td>Lille</td><td>?</td><td>?</td><td>100</td><td>?</td><td>?</td><td>120</td><td>65</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Nancy</td><td>?</td><td>?</td><td>?</td><td>80</td><td>90</td><td>75</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Grenoble</td><td>?</td><td>?</td><td>?</td><td>?</td><td>40</td><td>75</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Lyon</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>70</td><td>?</td><td>?</td><td>?</td><td>100</td></tr>
+    <tr><td>Dijon</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+    <tr><td>Caen</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>75</td><td>?</td><td>?</td></tr>
+    <tr><td>Rennes</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>45</td><td>130</td></tr>
+    <tr><td>Nantes</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>90</td></tr>
+    <tr><td>Bordeaux</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+  </table>
 
   <script type="text/javascript">
     
@@ -55,7 +124,7 @@
 
     // --- ARÊTES ---
     const edges = new vis.DataSet([
-      { from: 0, to: 1, label: '70', color: 'red' },
+      { from: 0, to: 1, label: '70'},
       { from: 0, to: 5, label: '60' },
       { from: 0, to: 6, label: '50' },
       { from: 0, to: 7, label: '110' },
@@ -97,9 +166,10 @@
 
     new vis.Network(container, data, options);
 
+    
 // --- NŒUDS ---
 const nodes_oriented = new vis.DataSet([
-  { id: 0, label: "Paris", x: 0, y: 0, fixed: true, shape: 'circularImage', image: 'static/img/tour_eiffel.jpg' },
+  { id: 0, label: "Paris", x: 0, y: 0, fixed: true},
   { id: 1, label: "Lille", x: 200, y: -200, fixed: true },
   { id: 2, label: "Nancy", x: 300, y: -50, fixed: true },
   { id: 3, label: "Grenoble", x: 250, y: 250, fixed: true },
@@ -157,72 +227,184 @@ const container_oriented = document.getElementById('network-oriented');
 const data_oriented = { nodes: nodes_oriented, edges: edges_oriented }; // ✅ correction ici
 const network = new vis.Network(container_oriented, data_oriented, options_oriented);
 
-// --- ANIMATION DU FLUX ROUGE ---
-const ctx = network.canvas.frame.canvas.getContext('2d');
 
-// 👉 Liste des arêtes à animer
-const pathEdges = [
-  { from: 1, to: 2 },
-  { from: 2, to: 3 },
-  { from: 3, to: 4 },
-  { from: 4, to: 5 },
-  { from: 5, to: 0 },
-];
+async function findShortestPath() {
+    const algo = document.getElementById("algorithmSelect").value;
+    const start = parseInt(document.getElementById("startNodeSelect").value);
+    const end = parseInt(document.getElementById("endNodeSelect").value);
 
-function animateFlow() {
-  const positions = network.getPositions();
-  const time = (Date.now() / 10) % 100; // vitesse du flux
-
-  // On efface la couche de dessin au-dessus du graphe
-  network.redraw();
-
-  ctx.save();
-  ctx.lineWidth = 4;
-  ctx.globalAlpha = 1;
-
-  pathEdges.forEach((edge, i) => {
-    const from = positions[edge.from];
-    const to = positions[edge.to];
-    if (!from || !to) return;
-
-    // ✅ Conversion des coordonnées du graphe vers celles du canvas
-    const fromCanvas = network.canvasToDOM({ x: from.x, y: from.y });
-    const toCanvas = network.canvasToDOM({ x: to.x, y: to.y });
-
-    const t = ((time + i * 20) % 100) / 100;
-    const segmentLength = 0.2;
-    const tStart = t;
-    const tEnd = Math.min(t + segmentLength, 1);
-
-    const x1 = fromCanvas.x + (toCanvas.x - fromCanvas.x) * tStart;
-    const y1 = fromCanvas.y + (toCanvas.y - fromCanvas.y) * tStart;
-    const x2 = fromCanvas.x + (toCanvas.x - fromCanvas.x) * tEnd;
-    const y2 = fromCanvas.y + (toCanvas.y - fromCanvas.y) * tEnd;
-
-    ctx.beginPath();
-    ctx.strokeStyle = 'red';
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  });
-
-  async function findShortestPath(start, end, algo) {
-    const response = await fetch('http://127.0.0.1:5000/shortest_path', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({start: start, end: end, algo: algo})
+    const response = await fetch("/shortest_path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ algo: algo, start: start, end: end })
     });
 
     const data = await response.json();
-    console.log("Chemin trouvé :", data.path);
 
-    // ici tu peux mettre à jour vis.js avec le chemin
-    highlightPath(data.path);
+    if (data.cost === "Infinity") {
+        alert("Aucun chemin trouvé entre les deux nœuds.");
+        return;
+    }
+
+
+    if (data.path) {
+        const paths = typeof data.path === "string" ? JSON.parse(data.path) : data.path;
+        buildEdgesFromChemin(paths);
+        calculCoutTotal();
+    } else if (data.paths) {
+        const paths = typeof data.paths === "string" ? JSON.parse(data.paths) : data.paths;
+        console.log("Paths :", paths);
+        if (data.algo === "Bellman"){
+          buildEdgesFromBellman(paths);
+        } else if (data.algo === "Dijkstra"){
+          buildEdgesFromPathsDjikstra(paths);
+        } else {
+          buildEdgesFromPaths(paths);
+        }
+        calculCoutTotal();
+    } else if (data.edges) {
+        const paths = typeof data.edges === "string" ? JSON.parse(data.edges) : data.edges;
+        buildEdgesFromEdges(data.edges);
+        calculCoutTotal();
+    } else {
+      if(data.algo === "Floyd-Warshall"){
+        const matrix = typeof data.matrix === "string" ? JSON.parse(data.matrix) : data.matrix;
+        remppliTabFromMatrice(matrix);
+      }
+    }
 }
 
-  ctx.restore();
-  requestAnimationFrame(animateFlow);
+function buildEdgesFromPaths(paths) {
+    // Réinitialiser les couleurs des arêtes
+    edges.forEach(edge => {
+        edge.color = 'black';
+        edges.update(edge);
+    });
+
+    // Mettre à jour les couleurs des arêtes en rouge pour le chemin trouvé
+    for (const node in paths) {
+        const parent = paths[node];
+        if (parent !== null) {
+            const edge = edges.get({
+                filter: e => (e.from == parent && e.to == parseInt(node)) || (e.from == parseInt(node) && e.to == parent)
+            })[0];
+            if (edge) {
+                edge.color = 'red';
+                edges.update(edge);
+            }
+        }
+    }
 }
+
+function buildEdgesFromPathsDjikstra(paths) {
+    // Réinitialiser les couleurs des arêtes
+    edges_oriented.forEach(edge => {
+        edge.color = 'black';
+        edges_oriented.update(edge);
+    });
+
+    // Mettre à jour les couleurs des arêtes en rouge pour le chemin trouvé
+    for (const node in paths) {
+        const parent = paths[node];
+        if (parent !== null) {
+            const edge = edges_oriented.get({
+                filter: e => (e.from == parent && e.to == parseInt(node)) || (e.from == parseInt(node) && e.to == parent)
+            })[0];
+            if (edge) {
+                edge.color = 'red';
+                edges_oriented.update(edge);
+            }
+        }
+    }
+}
+
+function buildEdgesFromEdges(pathEdgesList) {
+    // Réinitialiser les couleurs des arêtes
+    edges.forEach(edge => {
+        edge.color = 'black';
+        edges.update(edge);
+    });
+
+    // Mettre à jour les couleurs des arêtes en rouge pour le chemin trouvé
+    pathEdgesList.forEach(edgeInfo => {
+        const edge = edges.get({
+            filter: e => (e.from == edgeInfo.from && e.to == edgeInfo.to) || (e.from == edgeInfo.to && e.to == edgeInfo.from)
+        })[0];
+        if (edge) {
+            edge.color = 'red';
+            edges.update(edge);
+        }
+    });
+}
+
+function buildEdgesFromChemin(chemin) {
+  // Réinitialiser les couleurs des arêtes
+  edges_oriented.forEach(edge => {
+      edge.color = 'black';
+      edges_oriented.update(edge);
+  });
+
+  // Mettre à jour les couleurs des arêtes en rouge pour le chemin trouvé
+  for (let i = 0; i < chemin.length - 1; i++) {
+      const fromNode = chemin[i];
+      const toNode = chemin[i + 1];
+      const edge = edges.get({
+          filter: e => (e.from == fromNode && e.to == toNode) || (e.from == toNode && e.to == fromNode)
+      })[0];
+      if (edge) {
+          edge.color = 'red';
+          edges_oriented.update(edge);
+      }
+  }
+}
+
+function buildEdgesFromBellman(paths) {
+    // Réinitialiser les couleurs des arêtes
+    edges_oriented.forEach(edge => {
+        edge.color = 'black';
+        edges_oriented.update(edge);
+    });
+
+    // Mettre à jour les couleurs des arêtes en rouge pour le chemin trouvé
+    for (const node in paths) {
+        const parent = paths[node];
+        if (parent !== null) {
+            const edge = edges.get({
+                filter: e => (e.from == parent && e.to == parseInt(node))
+            })[0];
+            if (edge) {
+                edge.color = 'red';
+                edges_oriented.update(edge);
+            }
+        }
+    }
+}
+
+function remppliTabFromMatrice(matrice) {
+  const table = document.getElementById("matriceWarshallApres");
+  const rows = table.getElementsByTagName("tr");
+
+  // Pour chaque ligne (chaque ville de départ)
+  Object.keys(matrice).forEach((i, rowIndex) => {
+    const distances = matrice[i];
+    // +1 pour ignorer la première ligne d’en-tête
+    const cells = rows[rowIndex + 1].getElementsByTagName("td");
+
+    // On parcourt chaque distance (colonne)
+    distances.forEach((value, colIndex) => {
+      // colIndex + 1 pour ignorer la première colonne (nom de la ville)
+      if (cells[colIndex + 1]) {
+        cells[colIndex + 1].textContent = value === -1 ? "∞" : value;
+      }
+    });
+  });
+
+  // Rendre le tableau visible
+  table.style.display = "table";
+  document.getElementById("labelMatriceApresWarshall").style.display = "block";
+}
+
+
 
 function verifyNeededStartPoint() {
   const algorithm = document.getElementById('algorithmSelect').value;
@@ -234,7 +416,56 @@ function verifyNeededStartPoint() {
   }
 }
 
-animateFlow();
+function verifyNeededEndPoint() {
+  const algorithm = document.getElementById('algorithmSelect').value;
+  const endNodeSelect = document.getElementById('endNodeSelect');
+  if (algorithm === 'Dijkstra') {
+    endNodeSelect.style.display = 'inline';
+  } else {
+    endNodeSelect.style.display = 'none';
+  }
+}
+
+function verifyNeededGraph() {
+  const algorithm = document.getElementById('algorithmSelect').value;
+  const networkDiv = document.getElementById('network');
+  const tableWarshall = document.getElementById('matriceWarshallAvant');
+  const networkOrientedDiv = document.getElementById('network-oriented');
+  if (algorithm === 'Dijkstra' || algorithm === 'Floyd-Warshall' || algorithm === 'Bellman') {
+    networkDiv.style.display = 'none';
+    networkOrientedDiv.style.display = 'block';
+    if (algorithm === 'Floyd-Warshall'){
+      tableWarshall.style.display = 'table';
+      document.getElementById("labelMatriceAvantWarshall").style.display = "block";
+    } else {
+      tableWarshall.style.display = 'none';
+    }
+  } else {
+    networkDiv.style.display = 'block';
+    networkOrientedDiv.style.display = 'none';
+  }
+}
+
+function calculCoutTotal(){
+  const valPoidsTotal = document.getElementById("valPoidsTotal");
+  let total = 0;
+  if (document.getElementById('network').style.display === 'block'){
+    edges.forEach(edge => {
+        if (edge.color === 'red') {
+            total += parseInt(edge.label);
+        }
+    });
+  } else {
+    edges_oriented.forEach(edge => {
+        if (edge.color === 'red') {
+            total += parseInt(edge.label);
+        }
+    }); 
+  }
+  valPoidsTotal.textContent = total;
+}
+
+calculCoutTotal();
 
 
 </script>
