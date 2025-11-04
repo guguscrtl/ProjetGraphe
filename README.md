@@ -5,6 +5,9 @@ Process d'installation:
 
 
 Demarrer projet:
- - .venv\Scripts\activate
+ - source .venv\bin\activate
  - pip install flask
- - python .\app.py
+ - python .\app.py 
+ ou sinon 
+ - flask run
+ ( à exécuter dans le même dosssier que app.py)
