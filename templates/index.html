@@ -16,6 +16,7 @@
   <select id="algorithmSelect" onchange="verifyNeededStartPoint()">
     <option value="BFS">BFS</option>
     <option value="DFS">DFS</option>
+    <option value="Bellman">Bellman</option>
     <option value="Kruskal">Kruskal</option>
     <option value="Prim">Prim</option>
     <option value="Dijkstra">Dijkstra</option>
@@ -77,25 +78,7 @@
       { from: 8, to: 9, label: '90' }
     ]);
 
-    const container = document.getElementById('network');
-    const data = { nodes, edges };
-
-    // --- OPTIONS ---
-    var options = {
-      physics: false,  // désactive la physique (positions fixes)
-      edges: {
-        font: { align: 'middle' },
-        color: { color: '#999' }
-      },
-      nodes: {
-        shape: 'dot',
-        size: 20,
-        font: { size: 18 },
-        color: { background: '#7EC8E3', border: '#036' }
-      }
-    };
-
-    new vis.Network(container, data, options);
+   
 
 // --- NŒUDS ---
 const nodes_oriented = new vis.DataSet([
@@ -135,6 +118,8 @@ const edges_oriented = new vis.DataSet([
   { from: 8, to: 9, label: '90', color: { color: '#ccc' }},
 ]);
 
+
+
 // --- OPTIONS ---
 const options_oriented = {
   physics: false,
@@ -166,19 +151,20 @@ const options_non_oriented = {
   },
 };
 
-
-// --- INITIALISATION ---
+const container = document.getElementById('network');
 const container_oriented = document.getElementById('network-oriented');
-const container_non_oriented = document.getElementById('network');
-const data_oriented = { nodes: nodes_oriented, edges: edges_oriented }; 
-const network = new vis.Network(container_non_oriented, data, options);
 
-// --- ANIMATION DU FLUX ROUGE ---
-const ctx = network.canvas.frame.canvas.getContext('2d');
+const dataNonOriented = { nodes: nodes, edges: edges };
+const dataOriented = { nodes: nodes_oriented, edges: edges_oriented };
 
+const networkNonOriented = new vis.Network(container, dataNonOriented, options_non_oriented);
+const networkOriented = new vis.Network(container_oriented, dataOriented, options_oriented);
 
-// 👉 Liste des arêtes à animer
 let pathEdges = [];
+const ctxNonOriented = networkNonOriented.canvas.frame.canvas.getContext('2d');
+const ctxOriented = networkOriented.canvas.frame.canvas.getContext('2d');
+
+
 
 function buildPathEdges(path) {
   const edges = [];
@@ -192,11 +178,13 @@ function buildPathEdges(path) {
 
 
 function animateFlow() {
-  const positions = network.getPositions();
-  const time = (Date.now() / 10) % 100; // vitesse du flux
+  const time = (Date.now() / 10) % 100;
 
-  // On efface la couche de dessin au-dessus du graphe
-  network.redraw();
+  networkNonOriented.redraw();
+  networkOriented.redraw();
+
+  const ctx = (currentNetwork === networkNonOriented) ? ctxNonOriented : ctxOriented;
+  const positions = currentNetwork.getPositions();
 
   ctx.save();
   ctx.lineWidth = 4;
@@ -207,9 +195,8 @@ function animateFlow() {
     const to = positions[edge.to];
     if (!from || !to) return;
 
-    // ✅ Conversion des coordonnées du graphe vers celles du canvas
-    const fromCanvas = network.canvasToDOM({ x: from.x, y: from.y });
-    const toCanvas = network.canvasToDOM({ x: to.x, y: to.y });
+    const fromCanvas = currentNetwork.canvasToDOM({ x: from.x, y: from.y });
+    const toCanvas = currentNetwork.canvasToDOM({ x: to.x, y: to.y });
 
     const t = ((time + i * 20) % 100) / 100;
     const segmentLength = 0.2;
@@ -231,6 +218,8 @@ function animateFlow() {
   ctx.restore();
   requestAnimationFrame(animateFlow);
 }
+
+
 
 async function findShortestPath(start, end, algo) {
   const response = await fetch('http://127.0.0.1:5000/shortest_path', {
@@ -259,13 +248,32 @@ window.addEventListener('DOMContentLoaded', () => {
 function verifyNeededStartPoint() {
   const algorithm = document.getElementById('algorithmSelect').value;
   const startNodeSelect = document.getElementById('startNodeSelect');
+
+  // on cache le sélecteur de start quand inutile
   if (algorithm === 'Kruskal' || algorithm === 'Floyd-Warshall') {
     startNodeSelect.style.display = 'none';
   } else {
     startNodeSelect.style.display = 'inline';
   }
-}
 
+  // Liste des algos qui doivent afficher le graphe orienté (GO)
+  const orientedAlgorithms = ['Dijkstra', 'Floyd-Warshall'];
+
+  const graphNonOriented = document.getElementById('network');
+  const graphOriented = document.getElementById('network-oriented');
+
+  if (orientedAlgorithms.includes(algorithm)) {
+    // afficher GO
+    graphNonOriented.style.display = 'none';
+    graphOriented.style.display = 'block';
+    currentNetwork = networkOriented;
+  } else {
+    // afficher GNO
+    graphNonOriented.style.display = 'block';
+    graphOriented.style.display = 'none';
+    currentNetwork = networkNonOriented;
+  }
+}
 animateFlow();
 
 
