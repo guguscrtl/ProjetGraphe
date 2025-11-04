@@ -59,12 +59,8 @@ def shortest_path(algo, start, end=None):
         return {"algo": "Kruskal", "edges": edges}
 
     elif algo == "Prim":
-        pere = Prim(start)
-        edges = [
-            {"from": pere[i], "to": i}
-            for i in range(len(pere))
-            if pere[i] is not False
-        ]
+        pere, edges_data = Prim(start)
+        edges = [{"from": u, "to": v, "weight": w} for (w, u, v) in edges_data]
         return {"algo": "Prim", "edges": edges}
 
     elif algo == "Dijkstra":
@@ -144,33 +140,26 @@ def kruskal():
     return T
 
 def Prim(start):
-    """_summary_
-    Implémente l’algorithme de Prim pour construire un arbre couvrant minimal à partir d’un sommet donné.
+    n = len(A)
+    visite = [False]*n
+    visite[start] = True
+    edges = []
+    pere = [False]*n
 
-    Paramètres :
-    Args:
-        start (int):  indice du sommet de départ.
-
-    Returns:
-        list: tableau représentant les arêtes de l’arbre couvrant minimal
-    """
-    n=len(A)
-    visite=[False]*n
-    visite[start]=True
-    edges=[]
-    pere=[False]*n
     for _ in range(n-1):
-        min_edge=(math.inf,-1,-1)  # (poids, u, v)
+        min_edge = (math.inf, -1, -1)
         for u in range(n):
             if visite[u]:
                 for v in range(n):
-                    if not visite[v] and A[u][v]!=0:
-                        if A[u][v]<min_edge[0]:
-                            min_edge=(A[u][v],u,v)
-                            pere[v]=u
-        edges.append((min_edge[1],min_edge[2],min_edge[0]))
-        visite[min_edge[2]]=True
-    return pere
+                    if not visite[v] and A[u][v] != 0:
+                        if A[u][v] < min_edge[0]:
+                            min_edge = (A[u][v], u, v)
+        if min_edge[1] != -1:
+            pere[min_edge[2]] = min_edge[1]
+            visite[min_edge[2]] = True
+            edges.append(min_edge)  # <-- garder la liaison (poids, u, v)
+    return pere, edges
+
 
 def bellman(start):
     """_summary_

@@ -316,6 +316,8 @@ function buildEdgesFromPathsDjikstra(paths) {
       edges_oriented.update(edge);
     }
   }
+  network.setData({ nodes: nodes_oriented, edges: edges_oriented });
+
 }
 
 function buildEdgesFromEdges(pathEdgesList) {
