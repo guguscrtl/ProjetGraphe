@@ -1,11 +1,7 @@
-
-#Liste des villes
-from flask import jsonify
 import copy
 import math
-import copy 
 
-
+#Liste des villes
 villes = ["Paris", "Lille", "Nancy", "Grenoble", "Lyon", "Dijon", "Caen", "Rennes", "Nantes", "Bordeaux"]
 #Matrice d'adjacence
 A = [
@@ -33,7 +29,18 @@ A_oriente =  [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, 90],
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
 
-def shortest_path(algo, start, end):
+
+def shortest_path(algo, start, end=None):
+    """_summary_
+    Exécute l’algorithme choisi pour trouver un chemin ou un arbre couvrant.
+    Args:
+        algo (str): le nom de l’algorithme à exécuter
+        start (int): indice de la ville de départ
+        end (int, optional):l’indice de la ville d’arrivée (nécessaire pour Dijkstra).
+
+    Returns:
+        dict : un dictionnaire contenant les résultats de l’algorithme (chemins, coûts ou arêtes).
+    """
     if algo == "BFS":
         pere = parcours_largeur(start)
         return {"algo": "BFS", "paths": pere}
@@ -61,8 +68,10 @@ def shortest_path(algo, start, end):
         return {"algo": "Prim", "edges": edges}
 
     elif algo == "Dijkstra":
-        dist, chemin_indices = dijkstra(A, start, end)
-        return {"algo": "Dijkstra", "paths": chemin_indices, "cost": dist}
+        debut, fin = start, end
+        dist, chemin_indices = dijkstra(A, start, fin)
+        chemin_noms = [i for i in chemin_indices]
+        return {"algo": "Dijkstra", "path": chemin_noms, "cost": dist}
 
     elif algo == "Floyd-Warshall":
         W = Warshall(A_oriente)
@@ -74,11 +83,31 @@ def shortest_path(algo, start, end):
 
     
 def find(parent, i):
+    """_summary_
+    Fonction auxiliaire utilisée par Kruskal, appelée dans la fonction union
+    Args:
+        parent (list): tableau indiquant le parent de chaque sommet.
+        i (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     while parent[i] != i:
         i = parent[i]
     return i
 
 def union(parent, x, y):
+    """_summary_
+    Fonction auxiliaire utilisée par Kruskal,
+
+    Args:
+        parent (list): _description_
+        x (int): _description_
+        y (int): _description_
+
+    Returns:
+        _type_: _description_
+    """
     root_x = find(parent, x)
     root_y = find(parent, y)
     if root_x != root_y:
@@ -88,6 +117,11 @@ def union(parent, x, y):
 
 
 def kruskal():
+    """_summary_
+    Implémente l’algorithme de Kruskal pour construire un arbre couvrant minimal.
+    Returns:
+        Liste :Correspond a l'ordre des sommets visités
+    """
     list_edges = dict()
     n = len(A)
     for i in range(n):
@@ -110,6 +144,16 @@ def kruskal():
     return T
 
 def Prim(start):
+    """_summary_
+    Implémente l’algorithme de Prim pour construire un arbre couvrant minimal à partir d’un sommet donné.
+
+    Paramètres :
+    Args:
+        start (int):  indice du sommet de départ.
+
+    Returns:
+        list: tableau représentant les arêtes de l’arbre couvrant minimal
+    """
     n=len(A)
     visite=[False]*n
     visite[start]=True
@@ -129,30 +173,41 @@ def Prim(start):
     return pere
 
 def bellman(start):
+    """_summary_
+    Implémente l’algorithme de Bellman-Ford pour trouver les plus courts chemins depuis une ville donnée.
+    Args:
+        start (int):  indice de la ville de départ.
+
+    Returns:
+          list : tableau des pères indiquant le chemin le plus court vers chaque sommet.
+    """
     n=len(A_oriente)
     source = villes.index(start)
-    dist = [math.inf] * n
-    pere = [None] * n
-    dist[source] = 0 
-
-    for _ in range(n - 1):
-        for a in range(n):
-            for b in range(n):
-                if A_oriente[a][b] != -1:
-                    if dist[a] + A_oriente[a][b] < dist[b]:
-                        dist[b] = dist[a] + A_oriente[a][b]
-                        pere[b] = a
-
-    for a in range(n):
-        for b in range(n):
-            if A_oriente[a][b] != -1 and dist[a] + A_oriente[a][b] < dist[b]:
-                print("Il y a un cycle de poids négatif dans le graphe")
-                break
-
+    dist = [math.inf]*n
+    pere = [False]*n
+    dist[source]=0    # la distance d'une ville a elle meme est 0
+    for _ in range(n-1):     # on parcours n-1 fois pour eviter de creer un cycle 
+            for a in range(n):
+                  for b in range(n):
+                        if (A_oriente[a][b] != -1) :
+                              if (dist[a] +A_oriente[a][b] < dist[b]) :      # on regarde si le chemin de a à b etait deja le plus court ou pas
+                                    dist[b] = dist[a]+ A_oriente[a][b]       # on met a jour le nouveau poids de la nouvelle aretes si un chemin plus cours est trouver 
+                                    pere[b]= a 
+                                
+    if A_oriente[a][b] != -1 and dist[a] + A_oriente[a][b] < dist[b]:
+            print ("il y a un cycle de poids négatif")
     return pere
 
 
 def Warshall(A_oriente):
+    """_summary_
+    Implémente l’algorithme de Floyd-Warshall pour calculer les plus courtes distances entre toutes les paires de sommets.
+    Args:
+        A_oriente (list) : matrice d’adjacence orientée.
+
+    Returns:
+        list : matrice contenant les plus courtes distances entre chaque paire de sommets.
+    """
     W = copy.deepcopy(A_oriente)
     n = len(W)
     pere = [[None for _ in range(n)] for _ in range(n)]
@@ -176,6 +231,17 @@ def Warshall(A_oriente):
 
  
 def dijkstra(A, debut, fin):
+    """_summary_
+    Implémente l’algorithme de Dijkstra pour trouver le plus court chemin entre deux villes.
+
+    Args:
+         A (list) : matrice d’adjacence du graphe.
+        debut (int) : indice du sommet de départ.
+        fin (int) : indice du sommet d’arrivée.
+
+    Returns:
+        tuple : (distance totale, liste des indices du chemin le plus court).
+    """
     n = len(A)
     visit = [False]*n
     distance = [math.inf]*n
@@ -212,43 +278,14 @@ def dijkstra(A, debut, fin):
     return distance[fin], parcours
 
 def parcours_largeur(start):
+    """_summary_
+    Implémente le parcours en largeur (BFS) à partir d’un sommet donné.
+    Args:
+       start (int) : indice du sommet de départ.
+    Returns:
+        dict : indique le sommet depuis lequel chaque nœud a été découvert.
+    """
     n = len(A)
-    visit = [False]*n
-    distance = [math.inf]*n
-    pere = [None]*n
-    distance[debut] = 0
-
-    for _ in range(n):
-        # Chercher le sommet non visité avec la distance minimale
-        o = None
-        distance_mini = math.inf
-        for i in range(n):
-            if not visit[i] and distance[i] < distance_mini:
-                distance_mini = distance[i]
-                o = i
-        if o is None:
-            break
-
-        visit[o] = True
-
-        for v in range(n):
-            if A[o][v] > 0 and not visit[v]:
-                nouv_dist = distance[o] + A[o][v]
-                if nouv_dist < distance[v]:
-                    distance[v] = nouv_dist
-                    pere[v] = o
-
-    # Reconstituer le chemin
-    parcours = []
-    s = fin
-    while s is not None:
-        parcours.insert(0, s)
-        s = pere[s]
-
-    return distance[fin], parcours
-
-def parcours_largeur(start):
-    n = len(A) 
     pere = {i: None for i in range(n)}
     visite = [False] * n
 
@@ -266,6 +303,14 @@ def parcours_largeur(start):
 
 
 def parcours_profondeur(start):
+    """_summary_
+     Implémente le parcours en profondeur (DFS) à partir d’un sommet donné.
+    Args:
+      start (int) : indice du sommet de départ.
+
+    Returns:
+        dict : dictionnaire des pères représentant l’arbre du parcours en profondeur.
+    """
     n = len(A)
     pere = {i: None for i in range(n)}
     visite = [False] * n
@@ -281,75 +326,3 @@ def parcours_profondeur(start):
     return pere
 
 
-def affichage_chemin(pere, villes, start):
-    print(f"\nChemins depuis {villes[start]} :")
-    for i in range(len(villes)):
-        if i == start:
-            continue
-        chemin = []
-        courant = i
-        # On remonte jusqu'à la racine
-        while courant is not None:
-            chemin.insert(0, villes[courant])
-            courant = pere[courant]
-        if len(chemin) > 1:
-            print(" → ".join(chemin))
-        else:
-            print(f"{villes[i]} : inaccessible depuis {villes[start]}")
-
-
-def build_path_from_parents(pere, start):
-    chemins = []
-    for i in range(len(villes)):
-        if i == start or pere[i] is None:
-            continue
-        chemin = []
-        courant = i
-        while courant is not None:
-            chemin.insert(0, villes[courant])
-            courant = pere[courant]
-        chemins.append(chemin)
-    return chemins
-
-            
-
-
-if __name__ == "__main__":
-
-    start = 0  # Paris
-
-    pere_bfs = parcours_largeur(start)
-    pere_dfs = parcours_profondeur(start)
-
-    print("=== Parcours en largeur (BFS) ===")
-    affichage_chemin(pere_bfs, villes, start)
-
-    print("\n=== Parcours en profondeur (DFS) ===")
-    affichage_chemin(pere_dfs, villes, start)
-
-
-    print(bellman("Paris"))
-    print(Prim(0))
-    print(Warshall(A_oriente))
-    debut_nom = "Bordeaux"
-    fin_nom = "Caen"
-    debut = villes.index(debut_nom)
-    fin = villes.index(fin_nom)
-
-    # Calcul Dijkstra
-    dist, chemin_indices = dijkstra(A, debut, fin)
-    chemin_noms = [villes[i] for i in chemin_indices]
-
-    print("Chemin:", chemin_noms)
-    print("Distance:", dist)
-
-    print("\n=== Algorithmes sur les arbres couvrants et chemins minimaux ===")
-    print(parcours_largeur(0))
-    print(parcours_profondeur(0))
-    print("Kruskal:", kruskal())
-    print("Prim:", Prim(0))
-    print("Bellman:", bellman("Paris"))
-    print("Warshall:", Warshall(A_oriente))
-    print("Dijkstra:", dijkstra(A, debut, fin))
-    print("Chemin Dijkstra de", debut_nom, "à", fin_nom, ":")
-    print([villes[i] for i in dijkstra(A, debut, fin)[1]])
