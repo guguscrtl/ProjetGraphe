@@ -33,7 +33,7 @@ A_oriente =  [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, 90],
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
 
-def shortest_path(algo, start, end=None):
+def shortest_path(algo, start, end):
     if algo == "BFS":
         pere = parcours_largeur(start)
         return {"algo": "BFS", "paths": pere}
@@ -61,7 +61,7 @@ def shortest_path(algo, start, end=None):
         return {"algo": "Prim", "edges": edges}
 
     elif algo == "Dijkstra":
-        dist, chemin_indices = dijkstra(A, start)
+        dist, chemin_indices = dijkstra(A, start, end)
         return {"algo": "Dijkstra", "paths": chemin_indices, "cost": dist}
 
     elif algo == "Floyd-Warshall":
@@ -175,7 +175,7 @@ def Warshall(A_oriente):
     return W
 
  
-def dijkstra(A, debut):
+def dijkstra(A, debut, fin):
     n = len(A)
     visit = [False]*n
     distance = [math.inf]*n
@@ -202,7 +202,14 @@ def dijkstra(A, debut):
                     distance[v] = nouv_dist
                     pere[v] = o
 
-    return distance, pere
+    # Reconstituer le chemin
+    parcours = []
+    s = fin
+    while s is not None:
+        parcours.insert(0, s)
+        s = pere[s]
+
+    return distance[fin], parcours
 
 def parcours_largeur(start):
     n = len(A)
@@ -239,22 +246,6 @@ def parcours_largeur(start):
         s = pere[s]
 
     return distance[fin], parcours
-
-
-
-
-
-        
-
-               
-
-def shortest_path(algo, start):
-    if algo == "BFS":
-        return parcours_largeur(start)
-    elif algo == "DFS":
-        return parcours_profondeur(start)
-    else:
-        return ValueError("Algorithme non supporté")
 
 def parcours_largeur(start):
     n = len(A) 
@@ -346,7 +337,7 @@ if __name__ == "__main__":
     fin = villes.index(fin_nom)
 
     # Calcul Dijkstra
-    dist, chemin_indices = dijkstra(A, debut)
+    dist, chemin_indices = dijkstra(A, debut, fin)
     chemin_noms = [villes[i] for i in chemin_indices]
 
     print("Chemin:", chemin_noms)
@@ -359,6 +350,6 @@ if __name__ == "__main__":
     print("Prim:", Prim(0))
     print("Bellman:", bellman("Paris"))
     print("Warshall:", Warshall(A_oriente))
-    print("Dijkstra:", dijkstra(A, debut))
+    print("Dijkstra:", dijkstra(A, debut, fin))
     print("Chemin Dijkstra de", debut_nom, "à", fin_nom, ":")
-    print([villes[i] for i in dijkstra(A, debut)[1]])
+    print([villes[i] for i in dijkstra(A, debut, fin)[1]])

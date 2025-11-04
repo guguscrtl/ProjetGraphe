@@ -253,7 +253,6 @@ async function findShortestPath() {
         calculCoutTotal();
     } else if (data.paths) {
         const paths = typeof data.paths === "string" ? JSON.parse(data.paths) : data.paths;
-        console.log("Paths :", paths);
         if (data.algo === "Bellman"){
           buildEdgesFromBellman(paths);
         } else if (data.algo === "Dijkstra"){
@@ -303,19 +302,20 @@ function buildEdgesFromPathsDjikstra(paths) {
         edges_oriented.update(edge);
     });
 
-    // Mettre à jour les couleurs des arêtes en rouge pour le chemin trouvé
-    for (const node in paths) {
-        const parent = paths[node];
-        if (parent !== null) {
-            const edge = edges_oriented.get({
-                filter: e => (e.from == parent && e.to == parseInt(node)) || (e.from == parseInt(node) && e.to == parent)
-            })[0];
-            if (edge) {
-                edge.color = 'red';
-                edges_oriented.update(edge);
-            }
-        }
+  // Colorier en rouge les arêtes correspondant au chemin
+  for (let i = 0; i < paths.length - 1; i++) {
+    const from = paths[i];
+    const to = paths[i + 1];
+
+    const edge = edges_oriented.get({
+      filter: e => e.from === from && e.to === to
+    })[0];
+
+    if (edge) {
+      edge.color = 'red';
+      edges_oriented.update(edge);
     }
+  }
 }
 
 function buildEdgesFromEdges(pathEdgesList) {
